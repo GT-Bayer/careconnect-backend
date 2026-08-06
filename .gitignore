@@ -1,0 +1,17 @@
+# Compilados de Java y Maven/Gradle
+target/
+build/
+.gradle/
+*.class
+
+# IDEs y Editores
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+.vscode/
+
+# Configuración local de entorno y logs
+.env
+*.log
