@@ -1,28 +1,17 @@
 # CareConnect — Backend (API REST)
 
-API RESTful para la plataforma **CareConnect**, un sistema orientado a digitalizar y coordinar el cuidado de adultos mayores, conectando *familiares*, *cuidadores/enfermeros* y *administradores* con trazabilidad, seguridad e historial operativo.
+[![Java 21](https://img.shields.io/badge/Java-21-orange.svg)](https://www.oracle.com/java/)
+[![Spring Boot 3.2.5](https://img.shields.io/badge/Spring_Boot-3.2.5-green.svg)](https://spring.io/projects/spring-boot)
+[![MySQL 8.0](https://img.shields.io/badge/MySQL-8.0-blue.svg)](https://www.mysql.com/)
+[![Flyway Migration](https://img.shields.io/badge/Flyway-Enabled-red.svg)](https://flywaydb.org/)
 
----
-
-## 📋 Índice
-
-1. [Equipo de Desarrollo](#-equipo-de-desarrollo)
-2. [Problema & Solución](#-problema--solución)
-3. [Arquitectura del Sistema](#-arquitectura-del-sistema)
-4. [Stack Tecnológico](#-stack-tecnológico)
-5. [Patrones de Diseño Implementados](#-patrones-de-diseño-implementados)
-6. [Modelo de Datos & Persistencia](#-modelo-de-datos--persistencia)
-7. [Estrategia de Seguridad](#-estrategia-de-seguridad)
-8. [Estructura del Proyecto](#-estructura-del-proyecto)
-9. [Flujo de Trabajo en Git](#-flujo-de-trabajo-en-git)
-10. [Roadmap](#-roadmap)
-11. [Cómo Ejecutar el Proyecto](#-cómo-ejecutar-el-proyecto)
+API RESTful para la plataforma **CareConnect**, un sistema diseñado para digitalizar, coordinar y auditar la atención de adultos mayores, conectando de forma segura a familiares, cuidadores/enfermeros y administradores.
 
 ---
 
 ## 👥 Equipo de Desarrollo (Backend)
 
-| Integrante | Rol en Backend |
+| Integrante | Rol / Responsabilidad Principales |
 | :--- | :--- |
 | **Gabriel Tomás Bayer** | Backend, Arquitectura & Base de Datos |
 | **Micaela Belén Dominguez** | Backend & Datos |
@@ -30,48 +19,48 @@ API RESTful para la plataforma **CareConnect**, un sistema orientado a digitaliz
 | **Laia Franco** | Backend |
 | **Agostina Ledesma** | Backend |
 
-*(Nota: El desarrollo de la interfaz de usuario se gestiona en un repositorio independiente `careconnect-frontend`).*
+*(El desarrollo del cliente web/mobile se gestiona de forma desacoplada en el repositorio `careconnect-frontend`).*
 
 ---
 
 ## 💡 Problema & Solución
 
 ### El Problema
-La coordinación del cuidado de adultos mayores suele realizarse mediante canales informales (mensajería instantánea, recomendaciones boca a boca), generando:
-- Inexistencia de registros sobre el historial de atenciones y ficha médica.
-- Ausencia de validación de disponibilidad y riesgos de doble reserva de turnos.
-- Incertidumbre sobre la validación de matrículas y antecedentes profesionales.
+La coordinación informal de cuidados domiciliarios genera:
+* **Falta de trazabilidad:** Ausencia de registros médicos, historial de atenciones y seguimiento de pacientes.
+* **Incertidumbre operativa:** Conflictos de agenda, solapamiento de turnos y falta de validación en la disponibilidad horaria.
+* **Riesgo en la contratación:** Falta de verificación de matrículas y antecedentes profesionales.
 
 ### La Solución CareConnect
-CareConnect provee una API centralizada que gestiona el ciclo completo del servicio:
-- **Gestión de Perfiles & Roles:** Autenticación y autorización diferenciada (Familiar, Cuidador, Enfermero, Administrador).
-- **Control de Disponibilidad Horaria:** Definición de agendas semanales por franjas horarias y zonas de cobertura.
-- **Gestión de Turnos:** Ciclo de vida estricto (*PENDIENTE → CONFIRMADO → EN_CURSO → FINALIZADO / CANCELADO*) con validación anti-solapamiento.
-- **Ficha Médica del Adulto Mayor:** Registro de condiciones médicas, medicamentos, dosis y necesidades de cuidado.
+API centralizada para la gestión integral del servicio:
+* **Autenticación & RBAC:** Control de acceso basado en roles (*ADMINISTRADOR*, *CUIDADOR*, *ENFERMERO*, *FAMILIAR*).
+* **Gestión Horaria & Zonas:** Control de cobertura y agendas dinámicas por franja horaria.
+* **Ciclo de Vida de Turnos:** Flujo estricto y concurrente (*PENDIENTE → CONFIRMADO → EN_CURSO → FINALIZADO / CANCELADO*).
+* **Ficha Médica:** Centralización de condiciones, recetas, dosis y observaciones médicas.
 
 ---
 
-## 🏛️ Arquitectura
+## 🏛️ Arquitectura del Sistema
 
-El sistema está construido sobre una **Arquitectura en Capas Decoplada (Layered Architecture)** con flujo de dependencias unidireccional:
+Implementación de una **Arquitectura en Capas Decoplada (Layered Architecture)** con flujo unidireccional de dependencias:
 
 ```text
-[ Cliente Web / Móvil ]
-          │ (Peticiones HTTP / JSON)
-          ▼
+               [ Cliente Web / Mobile ]
+                           │ (HTTP / JSON)
+                           ▼
 ┌────────────────────────────────────────────────────────┐
-│ Capa de Presentación (Controller REST)                │
-│ ── Controladores, DTOs, Bean Validation, Exceptions    │
+│ Capa de Presentación (Controllers REST)                │
+│ ── Routing, Bean Validation (@Valid), DTOs, Handling   │
 └─────────────────────────┬──────────────────────────────┘
-                          │ (Lógica de Negocio)
+                          │
                           ▼
 ┌────────────────────────────────────────────────────────┐
-│ Capa de Negocio (Service Concreto)                     │
-│ ── Clases @Service directas, Transacciones, Reglas     │
+│ Capa de Negocio (Services)                             │
+│ ── Transacciones (@Transactional), Validaciones Domain │
 └─────────────────────────┬──────────────────────────────┘
-                          │ (Operaciones I/O)
+                          │
                           ▼
 ┌────────────────────────────────────────────────────────┐
-│ Capa de Persistencia (Repository & DB)                 │
-│ ── Spring Data JPA, Entidades, MySQL 8.0               │
+│ Capa de Persistencia (Repositories & Storage)          │
+│ ── Spring Data JPA, Entidades JPA, MySQL 8.0, Flyway   │
 └────────────────────────────────────────────────────────┘
