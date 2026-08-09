@@ -28,7 +28,10 @@ public abstract class Usuario extends BaseAuditableEntity {
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
-    @Column(length = 20)
+    @Column(nullable = false, length = 30)
+    private String rol;
+
+    @Column(length = 30)
     private String telefono;
 
     @Column(name = "foto_perfil")
