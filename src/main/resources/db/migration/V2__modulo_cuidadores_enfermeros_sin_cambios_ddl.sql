@@ -1,0 +1,26 @@
+-- =============================================================================
+-- V2 — Módulo Cuidadores y Enfermeros (Dev 2 - Ruta A / Vertical Slice)
+-- =============================================================================
+-- Este archivo se deja como constancia formal del paso "Migración SQL en Flyway"
+-- del flujo de trabajo del equipo. No agrega tablas ni columnas nuevas.
+--
+-- Motivo: todo lo que necesita este módulo ya fue creado en V1__init_schema.sql:
+--   - Tabla `cuidadores`      (incluye columna `disponible`, ya mapeada en la entidad)
+--   - Tabla `enfermeros`
+--   - Tabla `especialidades`
+--   - Tabla `zonas`
+--   - Tabla `certificaciones`
+--   - Tabla intermedia `cuidador_especialidades`
+--   - Tabla intermedia `cuidador_zonas`
+--
+-- Según la Regla #4 de la guía de Flyway del equipo, un V2 no debe duplicar
+-- CREATE TABLE de estructuras que ya existen en V1 (rompería la migración con
+-- "Table already exists"). Por eso este script no ejecuta DDL.
+--
+-- Repository / Service / Controller de este módulo:
+--   CuidadorRepository, EnfermeroRepository, EspecialidadRepository, ZonaRepository
+--   CuidadorService / CuidadorServiceImpl, EnfermeroService / EnfermeroServiceImpl
+--   CuidadorController (/api/v1/cuidadores), EnfermeroController (/api/v1/enfermeros)
+-- =============================================================================
+
+SELECT 1;

@@ -27,6 +27,9 @@ public class Cuidador extends Usuario {
     @Column(name = "precio_hora", precision = 10, scale = 2)
     private BigDecimal precioHora;
 
+    @Column(nullable = false)
+    private boolean disponible = true;
+
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "cuidador_id")
     private List<Certificacion> certificaciones = new ArrayList<>();
