@@ -8,7 +8,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "cuidadores")
-@PrimaryKeyJoinColumn(name = "usuario_id")
+@PrimaryKeyJoinColumn(name = "id")
 @Getter
 @Setter
 @NoArgsConstructor

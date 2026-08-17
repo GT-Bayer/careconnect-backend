@@ -4,6 +4,8 @@ import com.careconnect.dto.auth.AuthResponseDTO;
 import com.careconnect.dto.auth.LoginRequestDTO;
 import com.careconnect.dto.auth.RegistroUsuarioDTO;
 import com.careconnect.model.Administrador;
+import com.careconnect.model.Cuidador;
+import com.careconnect.model.Enfermero;
 import com.careconnect.model.Usuario;
 import com.careconnect.model.enums.EstadoUsuario;
 import com.careconnect.repository.UsuarioRepository;
@@ -27,18 +29,25 @@ public class UsuarioServiceImpl implements UsuarioService {
             throw new RuntimeException("El email ya se encuentra registrado");
         }
 
-        Administrador usuario = new Administrador();
+        String rol = (dto.getRol() != null && !dto.getRol().isBlank()) 
+                     ? dto.getRol().toUpperCase() 
+                     : "USUARIO";
+
+        // Instanciamos la subclase adecuada según el rol
+        Usuario usuario;
+        if ("CUIDADOR".equals(rol)) {
+            usuario = new Cuidador();
+        } else if ("ENFERMERO".equals(rol)) {
+            usuario = new Enfermero();
+        } else {
+            usuario = new Administrador();
+        }
+
         usuario.setNombre(dto.getNombre());
         usuario.setApellido(dto.getApellido());
         usuario.setEmail(dto.getEmail());
         usuario.setPasswordHash(dto.getPassword());
-        
-        if (dto.getRol() != null && !dto.getRol().isBlank()) {
-            usuario.setRol(dto.getRol());
-        } else {
-            usuario.setRol("USUARIO");
-        }
-
+        usuario.setRol(rol);
         usuario.setEstadoUser(EstadoUsuario.ACTIVO);
         usuario.setEmailVerificado(false);
 
