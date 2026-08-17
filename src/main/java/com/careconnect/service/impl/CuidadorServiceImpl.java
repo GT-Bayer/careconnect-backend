@@ -12,6 +12,7 @@ import com.careconnect.repository.ZonaRepository;
 import com.careconnect.service.CuidadorService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.careconnect.exception.ResourceNotFoundException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -93,7 +94,7 @@ public class CuidadorServiceImpl implements CuidadorService {
 
     private Cuidador buscarCuidadorOFallar(Long id) {
         return cuidadorRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Cuidador no encontrado con id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Cuidador no encontrado con id: " + id));
     }
 
     private CuidadorPerfilResponseDTO toResponseDTO(Cuidador c) {
@@ -117,4 +118,5 @@ public class CuidadorServiceImpl implements CuidadorService {
                         .collect(Collectors.toList()))
                 .build();
     }
+    
 }
