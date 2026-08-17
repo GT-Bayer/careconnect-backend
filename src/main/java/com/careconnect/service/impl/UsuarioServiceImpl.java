@@ -6,6 +6,7 @@ import com.careconnect.dto.auth.RegistroUsuarioDTO;
 import com.careconnect.model.Administrador;
 import com.careconnect.model.Cuidador;
 import com.careconnect.model.Enfermero;
+import com.careconnect.model.Familiar;
 import com.careconnect.model.Usuario;
 import com.careconnect.model.enums.EstadoUsuario;
 import com.careconnect.repository.UsuarioRepository;
@@ -30,8 +31,8 @@ public class UsuarioServiceImpl implements UsuarioService {
         }
 
         String rol = (dto.getRol() != null && !dto.getRol().isBlank()) 
-                     ? dto.getRol().toUpperCase() 
-                     : "USUARIO";
+                    ? dto.getRol().toUpperCase() 
+                    : "FAMILIAR";
 
         // Instanciamos la subclase adecuada según el rol
         Usuario usuario;
@@ -39,6 +40,8 @@ public class UsuarioServiceImpl implements UsuarioService {
             usuario = new Cuidador();
         } else if ("ENFERMERO".equals(rol)) {
             usuario = new Enfermero();
+        } else if ("FAMILIAR".equals(rol)) {
+            usuario = new Familiar();
         } else {
             usuario = new Administrador();
         }

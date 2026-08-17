@@ -11,19 +11,14 @@ import java.time.LocalDate;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-
 public class AdultoMayorResponseDTO {
-    
-   private String nombre; 
+    private Long id;
+    private Long familiarId;
+    private String nombre; 
     private String apellido; 
     private String dni; 
-    private String telefono; 
-    private String mail; 
-    private String direccion; 
     private LocalDate fechaNacimiento;
-    private String fotoPerfil; 
-    private String codigoPostal; 
-    private String provincia;
-    private String ciudad;  
-
+    private String observaciones;
+    private String movilidad;
+    private boolean activo;
 }

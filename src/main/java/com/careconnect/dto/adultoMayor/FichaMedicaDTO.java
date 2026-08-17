@@ -9,13 +9,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-
 public class FichaMedicaDTO {
-    
-    //dejara para despues 
-   /*  private Long id; 
-    private String antecedentes; 
-    private String alergias; 
-    private String medicacion; 
-    private String observaciones; */
+    private String diagnostico;
+    private String medicacion;
+    private String alergias;
+    private String contactoEmergencia;
 }

@@ -2,9 +2,9 @@ package com.careconnect.controller;
 
 import com.careconnect.dto.adultoMayor.AdultoMayorRequestDTO;
 import com.careconnect.dto.adultoMayor.AdultoMayorResponseDTO;
-import com.careconnect.service.impl.AdultoMayorService;
+import com.careconnect.service.AdultoMayorService; // 👈 import corregido
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,14 +13,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/adultos-mayores")
+@RequiredArgsConstructor
 public class AdultoMayorController {
 
     private final AdultoMayorService adultoMayorService;
-
-    @Autowired
-    public AdultoMayorController(AdultoMayorService adultoMayorService) {
-        this.adultoMayorService = adultoMayorService;
-    }
 
     @PostMapping
     public ResponseEntity<AdultoMayorResponseDTO> crear(@Valid @RequestBody AdultoMayorRequestDTO dto) {
