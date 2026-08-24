@@ -34,12 +34,17 @@ public class UsuarioServiceImpl implements UsuarioService {
                     ? dto.getRol().toUpperCase() 
                     : "FAMILIAR";
 
-        // Instanciamos la subclase adecuada según el rol
-        Usuario usuario;
+Usuario usuario;
         if ("CUIDADOR".equals(rol)) {
             usuario = new Cuidador();
         } else if ("ENFERMERO".equals(rol)) {
-            usuario = new Enfermero();
+            Enfermero enfermero = new Enfermero();
+            // Asigna la matrícula enviada o un valor por defecto si viniera nula
+            String matricula = (dto.getMatriculaProfesional() != null && !dto.getMatriculaProfesional().isBlank())
+                    ? dto.getMatriculaProfesional()
+                    : "MAT-PENDIENTE";
+            enfermero.setMatriculaProfesional(matricula);
+            usuario = enfermero;
         } else if ("FAMILIAR".equals(rol)) {
             usuario = new Familiar();
         } else {
@@ -48,8 +53,9 @@ public class UsuarioServiceImpl implements UsuarioService {
 
         usuario.setNombre(dto.getNombre());
         usuario.setApellido(dto.getApellido());
+        usuario.setTelefono(dto.getTelefono()); // <-- Seteo del teléfono
         usuario.setEmail(dto.getEmail());
-        usuario.setPasswordHash(dto.getPassword());
+        usuario.setPasswordHash(dto.getPassword()); // O passwordEncoder.encode(dto.getPassword()) si usas BCrypt
         usuario.setRol(rol);
         usuario.setEstadoUser(EstadoUsuario.ACTIVO);
         usuario.setEmailVerificado(false);

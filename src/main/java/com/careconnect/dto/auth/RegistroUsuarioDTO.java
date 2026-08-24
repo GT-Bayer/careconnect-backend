@@ -18,6 +18,8 @@ public class RegistroUsuarioDTO {
     @NotBlank(message = "El apellido es obligatorio")
     private String apellido;
 
+    private String telefono;
+
     @NotBlank(message = "El email es obligatorio")
     @Email(message = "Debe ser un email válido")
     private String email;
@@ -26,5 +28,8 @@ public class RegistroUsuarioDTO {
     @Size(min = 6, message = "La contraseña debe tener al menos 6 caracteres")
     private String password;
 
-    private String rol; // Opcional, dependiendo de si manejan roles en la entidad
+    private String rol;
+
+    // 👇 Campo agregado para enfermeros
+    private String matriculaProfesional;
 }
