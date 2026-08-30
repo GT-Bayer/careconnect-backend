@@ -25,26 +25,9 @@ public class AdminService {
 
     @Transactional(readOnly = true)
     public List<UsuarioModeracionDTO> listarUsuariosParaModerar() {
-        return usuarioRepository.findAll().stream().map(usuario -> {
-            String matricula = null;
-            String zona = null;
-
-            if (usuario instanceof Enfermero enf) {
-                matricula = enf.getMatriculaProfesional();
-                zona = enf.getZonaPrincipal();
-            }
-
-            return UsuarioModeracionDTO.builder()
-                    .id(usuario.getId())
-                    .nombre(usuario.getNombre())
-                    .apellido(usuario.getApellido())
-                    .email(usuario.getEmail())
-                    .rol(usuario.getRol())
-                    .estado(usuario.getEstadoUser())
-                    .matriculaProfesional(matricula)
-                    .zonaPrincipal(zona)
-                    .build();
-        }).collect(Collectors.toList());
+        return usuarioRepository.findAll().stream()
+                .map(this::mapearAUsuarioModeracionDTO)
+                .collect(Collectors.toList());
     }
 
     @Transactional
@@ -65,16 +48,53 @@ public class AdminService {
 
     @Transactional(readOnly = true)
     public AdminDashboardMetricsDTO obtenerMetricas() {
+        // Métricas por estado
         long total = usuarioRepository.count();
         long pendientes = usuarioRepository.countByEstadoUser(EstadoUsuario.PENDIENTE_VERIFICACION);
         long activos = usuarioRepository.countByEstadoUser(EstadoUsuario.ACTIVO);
         long suspendidos = usuarioRepository.countByEstadoUser(EstadoUsuario.SUSPENDIDO);
+
+        // Métricas por rol
+        long cuidadores = usuarioRepository.countByRol("CUIDADOR");
+        long enfermeros = usuarioRepository.countByRol("ENFERMERO");
+        long familiares = usuarioRepository.countByRol("FAMILIAR");
+
+        // Últimos 5 registros mapeados al DTO existente
+        List<UsuarioModeracionDTO> ultimos = usuarioRepository.findTop5ByOrderByIdDesc().stream()
+                .map(this::mapearAUsuarioModeracionDTO)
+                .collect(Collectors.toList());
 
         return AdminDashboardMetricsDTO.builder()
                 .totalUsuarios(total)
                 .pendientesVerificacion(pendientes)
                 .usuariosActivos(activos)
                 .usuariosSuspendidos(suspendidos)
+                .totalCuidadores(cuidadores)
+                .totalEnfermeros(enfermeros)
+                .totalFamiliares(familiares)
+                .ultimosRegistros(ultimos)
+                .build();
+    }
+
+    // Helper privado para reutilizar el mapeo de usuario a DTO
+    private UsuarioModeracionDTO mapearAUsuarioModeracionDTO(Usuario usuario) {
+        String matricula = null;
+        String zona = null;
+
+        if (usuario instanceof Enfermero enf) {
+            matricula = enf.getMatriculaProfesional();
+            zona = enf.getZonaPrincipal();
+        }
+
+        return UsuarioModeracionDTO.builder()
+                .id(usuario.getId())
+                .nombre(usuario.getNombre())
+                .apellido(usuario.getApellido())
+                .email(usuario.getEmail())
+                .rol(usuario.getRol())
+                .estado(usuario.getEstadoUser())
+                .matriculaProfesional(matricula)
+                .zonaPrincipal(zona)
                 .build();
     }
 }
