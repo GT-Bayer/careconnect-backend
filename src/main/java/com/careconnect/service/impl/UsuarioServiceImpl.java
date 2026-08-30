@@ -101,4 +101,16 @@ public class UsuarioServiceImpl implements UsuarioService {
                 .token(token)
                 .build();
     }
+    @Override
+    public AuthResponseDTO obtenerPerfilPorEmail(String email) {
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con email: " + email));
+
+        return AuthResponseDTO.builder()
+                .id(usuario.getId())
+                .nombre(usuario.getNombre())
+                .email(usuario.getEmail())
+                .rol(usuario.getRol())
+                .build();
+    }
 }

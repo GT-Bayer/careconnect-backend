@@ -9,4 +9,6 @@ public interface UsuarioService {
     AuthResponseDTO registrar(RegistroUsuarioDTO dto);
     
     AuthResponseDTO login(LoginRequestDTO dto);
+
+    AuthResponseDTO obtenerPerfilPorEmail(String email);
 }
