@@ -3,8 +3,13 @@ package com.careconnect.model;
 import com.careconnect.model.enums.EstadoUsuario;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Entity
@@ -14,7 +19,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public abstract class Usuario extends BaseAuditableEntity {
+public abstract class Usuario extends BaseAuditableEntity implements UserDetails {
 
     @Column(nullable = false, length = 100)
     private String nombre;
@@ -49,4 +54,46 @@ public abstract class Usuario extends BaseAuditableEntity {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserRol> roles = new ArrayList<>();
+
+    // ================= MÉTODOS DE USERDETAILS =================
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        String authority = rol.startsWith("ROLE_") ? rol : "ROLE_" + rol;
+        return List.of(new SimpleGrantedAuthority(authority));
+    }
+
+    @Override
+    public String getPassword() {
+        return this.passwordHash;
+    }
+
+    @Override
+    public String getUsername() {
+        return this.email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        // Bloquea el login si el usuario fue sancionado temporalmente
+        return this.estadoUser != EstadoUsuario.SUSPENDIDO;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        // Habilita el acceso solo si está activo, no fue borrado y confirmó su email
+        return this.deletedAt == null 
+                && this.estadoUser == EstadoUsuario.ACTIVO 
+                && this.emailVerificado;
+    }
 }
