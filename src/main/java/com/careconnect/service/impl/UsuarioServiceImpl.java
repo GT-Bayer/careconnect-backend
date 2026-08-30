@@ -11,6 +11,7 @@ import com.careconnect.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UsuarioServiceImpl implements UsuarioService {
@@ -30,6 +31,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     @Override
+    @Transactional
     public AuthResponseDTO registrar(RegistroUsuarioDTO dto) {
         if (usuarioRepository.existsByEmail(dto.getEmail())) {
             throw new RuntimeException("El email ya se encuentra registrado");
@@ -67,7 +69,14 @@ public class UsuarioServiceImpl implements UsuarioService {
         usuario.setEmail(dto.getEmail());
         usuario.setPasswordHash(passwordEncoder.encode(dto.getPassword()));
         usuario.setRol(rol);
-        usuario.setEstadoUser(EstadoUsuario.ACTIVO);
+
+        // 4. REGLA DE NEGOCIO: Cuidadores/Enfermeros nacen en PENDIENTE_VERIFICACION
+        if ("CUIDADOR".equals(rol) || "ENFERMERO".equals(rol)) {
+            usuario.setEstadoUser(EstadoUsuario.PENDIENTE_VERIFICACION);
+        } else {
+            usuario.setEstadoUser(EstadoUsuario.ACTIVO);
+        }
+
         usuario.setEmailVerificado(true);
 
         Usuario usuarioGuardado = usuarioRepository.save(usuario);
@@ -91,6 +100,11 @@ public class UsuarioServiceImpl implements UsuarioService {
             throw new RuntimeException("Credenciales inválidas");
         }
 
+        // Bloqueo a cuentas suspendidas
+        if (usuario.getEstadoUser() == EstadoUsuario.SUSPENDIDO) {
+            throw new RuntimeException("Tu cuenta se encuentra suspendida. Contacta a soporte.");
+        }
+
         String token = jwtService.generateToken(usuario);
 
         return AuthResponseDTO.builder()
@@ -101,6 +115,7 @@ public class UsuarioServiceImpl implements UsuarioService {
                 .token(token)
                 .build();
     }
+
     @Override
     public AuthResponseDTO obtenerPerfilPorEmail(String email) {
         Usuario usuario = usuarioRepository.findByEmail(email)
@@ -112,5 +127,14 @@ public class UsuarioServiceImpl implements UsuarioService {
                 .email(usuario.getEmail())
                 .rol(usuario.getRol())
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public void cambiarEstado(Long id, EstadoUsuario nuevoEstado) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con id: " + id));
+        usuario.setEstadoUser(nuevoEstado);
+        usuarioRepository.save(usuario);
     }
 }
